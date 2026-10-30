@@ -2,6 +2,7 @@
 #include "SPI.h"
 #include "dw3000.h"
 #include "dw3000_regs.h"
+#include <string>
 
 DWUart* uart = nullptr;
 DW3000Port* port = nullptr;
@@ -13,32 +14,32 @@ void setup() {
 
     //brute-force: set all compatible pins to INPUT mode and check for voltage levels
     int searchPins[] = {
-        //PA13, //SWDIO
+        //PA13, //SWDIO IDENTIFIED
         PA15,
         PB4,
-        PB7,
+        PB7, //IDENTIFIED
         PA12, //pulled low
-        //PA14, //SWCLK
-        PB3, //pulled low
-        PB6, //5
+        //PA14, //SWCLK IDENTIFIED
+        PB3, //connected to pin 34 (SPICLK) on the DW3000 verified
+        PB6, //5 IDENTIFIED
         PB8,
-        PA10, //RXD
+        PA10, //RXD IDENTIFIED
         PA11,
-        PB1, //9 pulled low
-        PB5,
-        PA9, //TXD
+        PB1, //9 pulled low (wired to DW3000 WAKEUP 32 verified)
+        PB5, //connected to pin 31 (EXTON) on the DW3000 verified, weird 1.5 volts when asserted by the STM32 though...
+        PA9, //TXD IDENTIFIED
         PB11, //12 pulled low
         PB0,
-        PA0,
-        PA8,
+        PA0, //14
+        PA8, //15 pin 33 (RSTn) on the DW3000 verified
         PB10, //16 pulled low
-        PA6, //17 pulled low
-        PA4,
-        PA2,
-        PB2,
-        PA7,
-        PA5,
-        PA3,
+        PA6, //17 pulled low (wired to DW3000 IRQ 1)
+        PA4, //18
+        PA2, //19 IDENTIFIED
+        PB2, //20
+        PA7, //21 IDENTIFIED
+        PA5, //22 IDENTIFIED
+        PA3, //23 IDENTIFIED
         PA1
     };
 
@@ -76,30 +77,145 @@ void setup() {
 
     };
 
+    std::string searchPinsName[] = {
+        "PA15",
+        "PB4",
+        "PB7", 
+        "PA12",
+        "PB3", 
+        "PB6",
+        "PB8",
+        "PA10",
+        "PA11",
+        "PB1",
+        "PB5",
+        "PA9",
+        "PB11",
+        "PB0",
+        "PA0", 
+        "PA8", 
+        "PB10",
+        "PA6", 
+        "PA4", 
+        "PA2", 
+        "PB2", 
+        "PA7", 
+        "PA5", 
+        "PA3", 
+        "PA1"
+    };
+
+    
     //int searchPinCount = 27;
     int searchPinCount = sizeof(searchPins) / sizeof(int);
-    for(int i = 0; i < searchPinCount; ++i)
-    {
-        pinMode(searchPins[i], INPUT_PULLUP);
-    }
-    while(1)
-    {
+
+    //pulls pins up and breaks if their values change
+    if(0){
         for(int i = 0; i < searchPinCount; ++i)
         {
-            if(digitalRead(searchPins[i]) == expectedValues[i]) {
-                //pin is high
-                int apple3 = digitalRead(searchPins[i]);
+            pinMode(searchPins[i], INPUT_PULLUP);
+        }
+        while(1)
+        {
+            for(int i = 0; i < searchPinCount; ++i)
+            {
+                if(digitalRead(searchPins[i]) == expectedValues[i]) {
+                    //pin is high
+                    int apple3 = digitalRead(searchPins[i]);
+                }
+                else {
+                    //pin is different, something's afoot (we should set a breakpoint here)
+                    int apple3 = digitalRead(searchPins[i]);
+                }
+
             }
-            else {
-                //pin is different, something's afoot (we should set a breakpoint here)
-                int apple3 = digitalRead(searchPins[i]);
+        }
+
+    }
+
+    if(0){
+        //"blinks" the pins
+        for(int i = 0; i < searchPinCount; ++i)
+        {
+            //re-using this, stores the states of the pins
+            expectedValues[i] = false;
+            pinMode(searchPins[i], OUTPUT);
+        }
+        int lastCurrentTime = millis();
+        while(1)
+        {
+            //only run the code below once per millisecond change
+            int currentTime = millis();
+            if(currentTime == lastCurrentTime) {
+                continue;
+            }
+            lastCurrentTime = currentTime;
+
+
+            for(int i = 0; i < searchPinCount; ++i)
+            {
+                //adding 1 to i so that we don't divide by 0
+                if(currentTime % (i + 1) == 0)
+                {
+                    expectedValues[i] = !expectedValues[i];
+                    digitalWrite(searchPins[i], expectedValues[i]);
+                }
             }
 
         }
+
     }
 
+    if(0){
+        for(int i = 0; i < searchPinCount; ++i)
+        {
+            pinMode(searchPins[i], OUTPUT);
+        }
+
+        while(1) {
+            for(int j = 0; j < searchPinCount; ++j)
+            {
+                digitalWrite(searchPins[j], 1);
+            }
+            delay(1000);
+            for(int j = 0; j < searchPinCount; ++j)
+            {
+                digitalWrite(searchPins[j], 0);
+            }
+            delay(2000);
+        }
+    }
+
+    if(1){
+        for(int i = 0; i < searchPinCount; ++i)
+        {
+            pinMode(searchPins[i], OUTPUT);
+        }
+
+        while(1) {
+
+            for(int i = 0; i < searchPinCount; ++i)
+            {
+                //reset all pins
+                for(int j = 0; j < searchPinCount; ++j)
+                {
+                    digitalWrite(searchPins[j], 0);
+                }
+
+                delay(100);
+
+                
+                //set the pin of interest
+                digitalWrite(searchPins[i], 1);
+
+                //random thing that can't be optimized out
+                int apple = i * searchPins[i] + millis();
+
+            }
 
 
+        }
+    }
 
 
 
