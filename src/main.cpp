@@ -9,6 +9,7 @@ DW3000Port* port = nullptr;
 DW3000* radio = nullptr;
 DummyStream* debugStream = nullptr;
 
+SPIClass* cspi = nullptr;
 
 void setup() {
 
@@ -16,9 +17,9 @@ void setup() {
     int searchPins[] = {
         //PA13, //SWDIO IDENTIFIED
         PA15,
-        PB4,
+        PB4, //connected to pin 36 on DW3000 (MISO on DW3000)
         PB7, //IDENTIFIED
-        PA12, //pulled low
+        PA12, //pulled low pin 35 (MOSI on DW3000)
         //PA14, //SWCLK IDENTIFIED
         PB3, //connected to pin 34 (SPICLK) on the DW3000 verified
         PB6, //5 IDENTIFIED
@@ -28,13 +29,13 @@ void setup() {
         PB1, //9 pulled low (wired to DW3000 WAKEUP 32 verified)
         PB5, //connected to pin 31 (EXTON) on the DW3000 verified, weird 1.5 volts when asserted by the STM32 though...
         PA9, //TXD IDENTIFIED
-        PB11, //12 pulled low
+        PB11, //12 pulled low pin 5 on DW3000 (GPIO 5)
         PB0,
-        PA0, //14
+        PA0, //14 pin 1 on DW3000 (IRQ/GPIO8)
         PA8, //15 pin 33 (RSTn) on the DW3000 verified
-        PB10, //16 pulled low
-        PA6, //17 pulled low (wired to DW3000 IRQ 1)
-        PA4, //18
+        PB10, //16 pulled low wired to pin 9 on DW3000 (GPIO 7 / sync)
+        PA6, //17 pulled low wired to pin 2 on DW3000 (GPIO6 / SPI config)
+        PA4, //18 connected to pin 37 on DW3000 (SPI Chip select on DW3000)
         PA2, //19 IDENTIFIED
         PB2, //20
         PA7, //21 IDENTIFIED
@@ -133,6 +134,7 @@ void setup() {
 
     }
 
+    //gives each pin a different on/off delay with the idea that this delay could be scoped to see what pin it was
     if(0){
         //"blinks" the pins
         for(int i = 0; i < searchPinCount; ++i)
@@ -166,6 +168,7 @@ void setup() {
 
     }
 
+    //blinks all pins on and off like a simple blink script
     if(0){
         for(int i = 0; i < searchPinCount; ++i)
         {
@@ -186,7 +189,8 @@ void setup() {
         }
     }
 
-    if(1){
+    //sets one pin on at a time so a multimeter can be used to see what trace gets voltage when a breakpoint is hit
+    if(0){
         for(int i = 0; i < searchPinCount; ++i)
         {
             pinMode(searchPins[i], OUTPUT);
@@ -217,24 +221,29 @@ void setup() {
         }
     }
 
+    //assert wakeup pin
+    //pinMode(PB1, OUTPUT);
+    //digitalWrite(PB1, 0);
 
-
+    //cspi = new SPIClass(PA12, PB4, PB3);
 
     SPI.setSCLK(PB3);
-    SPI.setMISO(PA11);
+    SPI.setMISO(PB4);
     SPI.setMOSI(PA12);
-    SPI.setSSEL(PA4);
-    SPI.begin();
+    // SPI.setSSEL(PA4);
+    // SPI.begin();
 
     //pinMode(PA0, OUTPUT);
 
 	debugStream = new DummyStream();
 	uart = new DWUart(*debugStream);
-    port = new DW3000Port(&SPI, PA4, PA7, PB8);
+    port = new DW3000Port(&SPI, PA4, PA8, PA0);
 	radio = new DW3000(uart, port);
 
     auto result = radio->dwt_check_dev_id();
 
+
+    auto apple = result ? result * 2 : 0;
 
     port->reset();
 	
