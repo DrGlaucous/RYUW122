@@ -1,24 +1,20 @@
 # RYUW122 Reverse engineering
 
-This little module contains a DW3210 UWB radio and a STM32L051 with 64k of internal flash in a 36-ball WLCSP package. The programming pins for the STM32 are broken out on the module, so it's trivial to reprogram with custom code using one of those sub-$5 stlink-v2 dongles.
+<p align="center">
+  <img src="./Media/IMG_0474.jpeg" width="400" alt="Decapped reyax ryuw122 board">
+</p>
 
-Similar UWB modules containing a DW3000 radio are physically larger and don't integrate their own microcontroller, making the RYUW122 an attractive choice for small footprints since it has everything already.
+[https://reyax.com/product/UWB/RYUW122](https://reyax.com/product/UWB/RYUW122)
+
+This little module contains a UWB radio and 32 bit microcontroller in a package roughly the size of a micro SD card (or a fingernail). Similar UWB modules containing the same hardware are physically larger and don't always integrate their own microcontroller, making the RYUW122 an attractive choice for small footprints since it has everything already, but much of the functionality of the model is locked behind a somewhat limited set of AT commands made by reyax.
+
+The chips themselves are:
+- DW3210 UWB radio
+- STM32L051 with 64k of internal flash in a 36-ball WLCSP package
+
+Fortunately, the programming interface for the STM32 is already broken out on the board, making it trivial to reprogram with custom code using one of those sub-$5 stlink-v2 dongles.
 
 Unfortunately, there isn't any documentation (like schematics or internal pinouts) for people aiming to write custom firmware for this thing, so that's what I'm trying to figure out here.
-
-
-## Pins
-
-for SPI data:
-pb3 - clock
-pa11 - miso
-PA12 - mosi
-pb8 - IRQ
-pa4 - nss
-
-
-
-
 
 
 
@@ -93,6 +89,44 @@ shutdown command invoked
 ======================================================================================= [SUCCESS] Took 9.14 seconds =======================================================================================
  *  Terminal will be reused by tasks, press any key to close it. 
 ```
+
+
+## Pins
+
+Using a combination of macro photos, an arduino sketch and a multimeter, I was able to figure out the following connections:
+
+
+The following are the pin assignments on the STM32.
+
+- **PA13**  - SWDIO
+- **PA15**  - Not connected
+- **PB4**  - DW3000 MISO
+- **PB7**  - Broken out
+- **PA12** - DW3000 MOSI
+- **PA14** - SWCLK
+- **PB3**  - DW3000 CLK
+- **PB6**  - Broken out
+- **PB8**  - Not connected
+- **PA10** - Broken out
+- **PA11** - Not connected
+- **PB1**  - DW3000 Wakeup
+- **PB5**  - DW3000 EXTON
+- **PA9**  - Broken out
+- **PB11** - DW3000 GPIO5
+- **PB0**  - Not connected
+- **PA0**  - DW3000 IRQ
+- **PA8**  - DW3000 RSTn
+- **PB10** - DW3000 GPIO7
+- **PA6**  - DW3000 GPIO6
+- **PA4**  - DW3000 CS
+- **PA2**  - Broken out
+- **PB2**  - Not connected
+- **PA7**  - Broken out
+- **PA5**  - Broken out
+- **PA3**  - Broken out
+- **PA1**  - Not connected
+
+
 
 
 
