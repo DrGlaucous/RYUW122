@@ -95,6 +95,11 @@ shutdown command invoked
 
 Using a combination of macro photos, an arduino sketch and a multimeter, I was able to figure out the following connections:
 
+<p align="center">
+  <img src="./Media/RYUW122.svg" width="80%" alt="Pinout guide for RYUW122">
+</p>
+
+
 
 The following are the pin assignments on the STM32.
 
