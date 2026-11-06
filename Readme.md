@@ -132,9 +132,13 @@ The following are the pin assignments on the STM32.
 - **PA1**  - Not connected
 
 
+## Footprint and symbol
 
+Reyax doesn't provide footprint and symbol downloads for this module. They do provide a CAD model though. I created some footprints for kicad 9.0 and included them in this repository.
 
-
-
-
+<p align="center">
+    <img src="./Media/Symbol.png" width="50%" alt="Pinout guide for RYUW122">
+    <img src="./Media/Footprint.png" width="50%" alt="Pinout guide for RYUW122">
+    <img src="./Media/3D Footprint.png" width="50%" alt="Pinout guide for RYUW122">
+</p>
 
